@@ -11,6 +11,10 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
     let (_stream, handle) = rodio::OutputStream::try_default().unwrap();
     let sink = rodio::Sink::try_new(&handle).unwrap();
 
+    ncurses::setlocale(ncurses::LcCategory::all, "");
+    let screen = crate::Screen(ncurses::initscr());
+    ncurses::scrollok(screen.0, true);
+
     for entry in fs::read_dir(current_dir).unwrap() {
         let path = entry.unwrap().path();
         let pstr = path.into_os_string().into_string().unwrap();
@@ -21,11 +25,15 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
             Ok(buff) => {
                 let buffc = buff.buffered();
                 sink.append(buffc);
-                //print!("Sussessfully read file: {}", pstr)
+                ncurses::wprintw(screen.0, &format!("Sussessfully read file: {}\n", pstr));
+                ncurses::wrefresh(screen.0);
             },
             Err(_) => {}
         }
     }
+
+    ncurses::wprintw(screen.0, &format!("\n"));
+    ncurses::delscreen(screen.0);
 
 
     let mut play = true;
