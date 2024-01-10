@@ -17,23 +17,24 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
 
     let mut play_request = rx.try_recv();
 
+
     loop {
         for entry in fs::read_dir(current_dir).unwrap() {
             let path = entry.unwrap().path();
             let pstr = path.into_os_string().into_string().unwrap();
             let file = std::fs::File::open(pstr.clone()).unwrap();
             let res = rodio::Decoder::new(BufReader::new(file));
+            let sink = rodio::Sink::try_new(&handle).unwrap();
             match res {
                 Ok(buff) => {
                     let buffc = buff.buffered();
-                    let sink = rodio::Sink::try_new(&handle).unwrap();
                     sink.append(buffc);
                     ncurses::clear();
                     ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
                     ncurses::wprintw(screen.0, &format!("Now playing {}\n", pstr));
                     ncurses::wrefresh(screen.0);
     
-                    loop {
+                    while !sink.empty() {
     
                         match play_request {
                             Ok(play_result) => {
@@ -56,15 +57,7 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
                         std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
                 
                         play_request = rx.try_recv();
-    
-                        if sink.empty() {
-                            break;
-                        }
                 
-                    }
-    
-                    if sink.empty() {
-                        break;
                     }
                 },
                 Err(_) => {}
