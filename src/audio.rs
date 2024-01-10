@@ -19,6 +19,7 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
 
 
     loop {
+        let mut counter = 0;
         for entry in fs::read_dir(current_dir).unwrap() {
             let path = entry.unwrap().path();
             let pstr = path.into_os_string().into_string().unwrap();
@@ -27,11 +28,12 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
             let sink = rodio::Sink::try_new(&handle).unwrap();
             match res {
                 Ok(buff) => {
+                    counter += 1;
                     let buffc = buff.buffered();
                     sink.append(buffc);
                     ncurses::clear();
                     ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
-                    ncurses::wprintw(screen.0, &format!("Now playing {}\n", pstr));
+                    ncurses::wprintw(screen.0, &format!("Now playing track [{}] {}\n", counter, pstr));
                     ncurses::wrefresh(screen.0);
     
                     while !sink.empty() {
