@@ -62,7 +62,12 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
                 
                     }
                 },
-                Err(_) => {}
+                Err(_) => {
+                    ncurses::clear();
+                    ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
+                    ncurses::wprintw(screen.0, &format!("No audio files could be found or decoded.\n"));
+                    std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
+                }
             }
         }
     }
