@@ -27,12 +27,6 @@ fn main() {
     let stdin = std::io::stdin();
     let mut input_stream = unsafe { InputStream::init_with_ncurses(stdin.lock(), screen.0) };
 
-    ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
-    ncurses::wrefresh(screen.0);
-    ncurses::wprintw(screen.0, &format!("\n"));
-    ncurses::wrefresh(screen.0);
-    
-
     loop {
         let event = input_stream.next_event();
 

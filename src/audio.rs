@@ -33,6 +33,10 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
     }
 
     ncurses::wprintw(screen.0, &format!("\n"));
+    ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
+    ncurses::wrefresh(screen.0);
+    ncurses::wprintw(screen.0, &format!("\n"));
+    ncurses::wrefresh(screen.0);
     ncurses::delscreen(screen.0);
 
 
