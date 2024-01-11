@@ -1,5 +1,5 @@
 use std::thread;
-use std::sync::mpsc::{self, Sender, Receiver};
+use std::sync::{Arc, Mutex};
 
 use terminal_input::{Event, InputStream, KeyInput, Modifiers};
 
@@ -11,15 +11,34 @@ impl Drop for Screen {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct State {
+    play: bool,
+    skip: bool,
+    file_num: usize,
+    file_name: String,
+    message: String,
+}
+
+
+
 pub const FT_DESIRED: f64 = 1.0/60.0;
 
 mod audio;
 
 fn main() {
-    let mut play_music = true;
-    let mut skip = false;
-    let (tx, rx): (Sender<(bool, bool)>, Receiver<(bool, bool)>) = mpsc::channel();
-    thread::spawn(move || {audio::playback(&rx)});
+    let state = State {
+        play: true,
+        skip: false,
+        file_num: 0,
+        file_name: format!(""),
+        message: format!(""),
+    };
+
+    let state = Arc::new(Mutex::new(state));
+    let state_other = Arc::clone(&state);
+
+    thread::spawn(|| {audio::playback(state_other)});
 
     ncurses::setlocale(ncurses::LcCategory::all, "");
     let screen = Screen(ncurses::initscr());
@@ -27,35 +46,37 @@ fn main() {
     let stdin = std::io::stdin();
     let mut input_stream = unsafe { InputStream::init_with_ncurses(stdin.lock(), screen.0) };
 
-    ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
-
     loop {
         let event = input_stream.next_event();
 
+        let mut s_main = state.lock().unwrap();
+
         match event.unwrap() {
-            Event::KeyPress { modifiers: Modifiers::NONE, key: KeyInput::Codepoint(' '), .. } => {
-                play_music = !play_music;
-                tx.send((play_music, skip)).unwrap();
-                ncurses::wprintw(screen.0, &format!("paused: {}\n", !play_music));
-                ncurses::wrefresh(screen.0);
-            }
             Event::KeyPress { modifiers: Modifiers::NONE, key: KeyInput::Codepoint('s'), .. } => {
-                if play_music {
-                    skip = true;
-                    tx.send((play_music, skip)).unwrap();
-                    skip = false;
-                    ncurses::wprintw(screen.0, &format!("skipped a song\n"));
-                    ncurses::wrefresh(screen.0);
+                if s_main.play {
+                    s_main.skip = true;
+                    s_main.message = format!("track skipped\n")
                 } else {
-                    ncurses::wprintw(screen.0, &format!("unpause to skip\n"));
-                    ncurses::wrefresh(screen.0);
+                    s_main.message = format!("unpause to skip\n")
                 }
+            }
+            Event::KeyPress { modifiers: Modifiers::NONE, key: KeyInput::Codepoint(' '), .. } => {
+                s_main.play = !s_main.play;
+                s_main.message = format!("paused: {}\n", !s_main.play)
             }
             Event::KeyPress { modifiers: Modifiers::NONE, key: KeyInput::Codepoint('e'), .. } => {
                return;
             }
             _ => {}
         }
+
+        ncurses::clear();
+        ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
+        ncurses::wprintw(screen.0, &format!("Now playing track [{}] {}\n", s_main.file_num, s_main.file_name));
+        ncurses::wprintw(screen.0, &s_main.message);
+        ncurses::wrefresh(screen.0);
+
+        drop(s_main);
 
         std::thread::sleep(std::time::Duration::from_secs_f64(FT_DESIRED));
     }

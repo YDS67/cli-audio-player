@@ -1,73 +1,53 @@
 use std::io::BufReader;
-use std::sync::mpsc::Receiver;
+use std::sync::{Arc, Mutex};
 use std::fs;
 use rodio::Source; 
 
-pub fn playback(rx: &Receiver<(bool, bool)>) {
+pub fn playback(state_other: Arc<Mutex<crate::State>>) {
     let current_dir = ".";
 
     let (_stream, handle) = rodio::OutputStream::try_default().unwrap();
-
-    ncurses::setlocale(ncurses::LcCategory::all, "");
-    let screen = crate::Screen(ncurses::initscr());
-    ncurses::scrollok(screen.0, true);
-
-    let mut play = true;
-    let mut skip = false;
-
-    let mut play_request = rx.try_recv();
-
 
     loop {
         let mut counter = 0;
         for entry in fs::read_dir(current_dir).unwrap() {
             let path = entry.unwrap().path();
-            let pstr = path.into_os_string().into_string().unwrap();
-            let file = std::fs::File::open(pstr.clone()).unwrap();
+            let pstr = path.clone().into_os_string().into_string().unwrap();
+            let file = std::fs::File::open(path).unwrap();
             let res = rodio::Decoder::new(BufReader::new(file));
             let sink = rodio::Sink::try_new(&handle).unwrap();
+
             match res {
                 Ok(buff) => {
                     counter += 1;
                     let buffc = buff.buffered();
                     sink.append(buffc);
-                    ncurses::clear();
-                    ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
-                    ncurses::wprintw(screen.0, &format!("Now playing track [{}] {}\n", counter, pstr));
-                    ncurses::wrefresh(screen.0);
-    
-                    while !sink.empty() {
-    
-                        match play_request {
-                            Ok(play_result) => {
-                                play = play_result.0;
-                                skip = play_result.1;
-                
-                            },
-                            Err(_) => {
-                            },
-                        };
-                        if play {
-                            sink.play();
-                            if skip {
-                                sink.skip_one();
-                                skip = false
-                            }
-                        } else {
-                            sink.pause();
-                        }
-                        std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
-                
-                        play_request = rx.try_recv();
-                
-                    }
                 },
-                Err(_) => {
-                    ncurses::clear();
-                    ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
-                    ncurses::wprintw(screen.0, &format!("No audio files could be found or decoded.\n"));
-                    std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
+                Err(_) => {}
+            }
+
+            loop {
+                let mut s_other = state_other.lock().unwrap();
+                s_other.file_num = counter;
+                s_other.file_name = pstr.clone();
+
+                if s_other.play {
+                    sink.play();
+                    if s_other.skip {
+                        sink.skip_one();
+                        s_other.skip = false;
+                    }
+                } else {
+                    sink.pause();
                 }
+                drop(s_other);
+
+                std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
+
+                if sink.empty() {
+                    break
+                }
+        
             }
         }
     }
