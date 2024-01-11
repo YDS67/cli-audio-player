@@ -150,6 +150,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4bfbf56724aa9eca8afa4fcfadeb479e722935bb2a0900c2d37e0cc477af0688"
 
 [[package]]
+name = "cli-audio-player"
+version = "0.1.0"
+dependencies = [
+ "ncurses",
+ "rodio",
+ "terminal-input",
+]
+
+[[package]]
 name = "combine"
 version = "4.6.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -157,15 +166,6 @@ checksum = "35ed6e9d84f0b51a7f52daf1c7d71dd136fd7a3f41a8462b8cdb8c78d920fad4"
 dependencies = [
  "bytes",
  "memchr",
-]
-
-[[package]]
-name = "console-audio-player"
-version = "0.1.0"
-dependencies = [
- "ncurses",
- "rodio",
- "terminal-input",
 ]
 
 [[package]]

@@ -1,5 +1,5 @@
 [package]
-name = "console-audio-player"
+name = "cli-audio-player"
 version = "0.1.0"
 edition = "2021"
 
