@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use std::fs;
 use rodio::Source; 
 
-pub fn playback(state_other: Arc<Mutex<crate::State>>) {
+pub fn playback(state_player: Arc<Mutex<crate::State>>) {
     let current_dir = ".";
 
     let (_stream, handle) = rodio::OutputStream::try_default().unwrap();
@@ -23,21 +23,21 @@ pub fn playback(state_other: Arc<Mutex<crate::State>>) {
                     let buffc = buff.buffered();
                     sink.append(buffc);
                     while !sink.empty() {
-                        let mut s_other = state_other.lock().unwrap();
-                        s_other.file_num = counter;
-                        s_other.file_name = pstr.clone();
+                        let mut s_player = state_player.lock().unwrap();
+                        s_player.file_num = counter;
+                        s_player.file_name = pstr.clone();
         
-                        if s_other.play {
+                        if s_player.play {
                             sink.play();
-                            if s_other.skip {
-                                s_other.skip = false;
+                            if s_player.skip {
+                                s_player.skip = false;
                                 sink.skip_one();
                                 break;
                             }
                         } else {
                             sink.pause();
                         }
-                        drop(s_other);
+                        drop(s_player);
         
                         std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
                     }
