@@ -48,11 +48,11 @@ fn main() {
 
     loop {
         if listen {
-            let event = input_stream.next_event();
+            let event = input_stream.next_event().unwrap();
 
             let mut s_main = state.lock().unwrap();
 
-            match event.unwrap() {
+            match event {
                 Event::KeyPress {
                     modifiers: Modifiers::NONE,
                     key: KeyInput::Codepoint('s'),
