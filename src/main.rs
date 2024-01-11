@@ -30,9 +30,9 @@ fn main() {
     ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
 
     loop {
-        let event = input_stream.next_event();
+        let event = input_stream.next_event().unwrap();
 
-        match event.unwrap() {
+        match event {
             Event::KeyPress { modifiers: Modifiers::NONE, key: KeyInput::Codepoint(' '), .. } => {
                 play_music = !play_music;
                 tx.send((play_music, skip)).unwrap();
