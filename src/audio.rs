@@ -22,32 +22,27 @@ pub fn playback(state_other: Arc<Mutex<crate::State>>) {
                     counter += 1;
                     let buffc = buff.buffered();
                     sink.append(buffc);
+                    while !sink.empty() {
+                        let mut s_other = state_other.lock().unwrap();
+                        s_other.file_num = counter;
+                        s_other.file_name = pstr.clone();
+        
+                        if s_other.play {
+                            sink.play();
+                            if s_other.skip {
+                                s_other.skip = false;
+                                sink.skip_one();
+                                break;
+                            }
+                        } else {
+                            sink.pause();
+                        }
+                        drop(s_other);
+        
+                        std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
+                    }
                 },
                 Err(_) => {}
-            }
-
-            loop {
-                let mut s_other = state_other.lock().unwrap();
-                s_other.file_num = counter;
-                s_other.file_name = pstr.clone();
-
-                if s_other.play {
-                    sink.play();
-                    if s_other.skip {
-                        sink.skip_one();
-                        s_other.skip = false;
-                    }
-                } else {
-                    sink.pause();
-                }
-                drop(s_other);
-
-                std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
-
-                if sink.empty() {
-                    break
-                }
-        
             }
         }
     }
