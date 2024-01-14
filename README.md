@@ -11,3 +11,5 @@ Used rodio crate for audio, terminal_input and ncurses for ui.
 Loops over the whole file list (the order is system-dependent, so you can consider it random). UI shows directory name, file name and file format. You can pause or skip forward, but not back. I hope to implement more controls soon.
 
 **Building**: `cargo build --release` should work. You'll need `libasound-dev` on Ubuntu/Debian, for other possible dependencies check out rodio and ncurses documentation.
+
+![width:300px](/screenshots/cli-player.png)
