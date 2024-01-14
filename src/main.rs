@@ -36,7 +36,7 @@ fn main() {
             Event::KeyPress { modifiers: Modifiers::NONE, key: KeyInput::Codepoint(' '), .. } => {
                 play_music = !play_music;
                 tx.send((play_music, skip)).unwrap();
-                ncurses::wprintw(screen.0, &format!("paused: {}\n", !play_music));
+                ncurses::wprintw(screen.0, &format!("*** paused: {}\n", !play_music));
                 ncurses::wrefresh(screen.0);
             }
             Event::KeyPress { modifiers: Modifiers::NONE, key: KeyInput::Codepoint('s'), .. } => {
@@ -44,10 +44,10 @@ fn main() {
                     skip = true;
                     tx.send((play_music, skip)).unwrap();
                     skip = false;
-                    ncurses::wprintw(screen.0, &format!("skipped a song\n"));
+                    ncurses::wprintw(screen.0, &format!("*** skipped a song\n"));
                     ncurses::wrefresh(screen.0);
                 } else {
-                    ncurses::wprintw(screen.0, &format!("unpause to skip\n"));
+                    ncurses::wprintw(screen.0, &format!("*** unpause to skip\n"));
                     ncurses::wrefresh(screen.0);
                 }
             }
