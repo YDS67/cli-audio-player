@@ -5,8 +5,14 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+opt-level = "z"  # Optimize for size.
+lto = true
+panic = "abort"
+
 [dependencies]
 ncurses = "5.101.0"
-rodio = "0.17.3"
+rodio = { version = "0.17.3", features = ["symphonia-mp3", "symphonia-wav", "symphonia-flac", "vorbis"] }
 terminal-input = "0.1.0"
 

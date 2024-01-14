@@ -167,6 +167,7 @@ fn new_with_ext(file: File, ext: MusicFormat) -> Result<Decoder<File>, DecoderEr
         MusicFormat::MP3 => Decoder::new_mp3(file),
         MusicFormat::WAV => Decoder::new_wav(file),
         MusicFormat::OGG => Decoder::new_vorbis(file),
+        //MusicFormat::OGG => Decoder::new(file),
         MusicFormat::FLAC => Decoder::new_flac(file),
         _ => Decoder::new(file),
     }?;
