@@ -10,6 +10,7 @@ strip = true  # Automatically strip symbols from the binary.
 opt-level = "z"  # Optimize for size.
 lto = true
 panic = "abort"
+trim-paths = "all"
 
 [dependencies]
 ncurses = "5.101.0"
