@@ -42,7 +42,7 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
                             sink.append(buffc);
 
                             ncurses::clear();
-                            ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
+                            ncurses::wprintw(screen.0, &format!("[Space] to pause/resume, [S] to skip, [E] to exit.\n"));
                             ncurses::wprintw(screen.0, &format!("Current directory: {}\n", dir_name.clone()));
                             ncurses::wprintw(screen.0, &format!("Now playing track [{}]: {}\n", counter, file_name.clone()));
                             ncurses::wprintw(screen.0, &format!("Format: {}\n", ext_text.clone()));
@@ -75,7 +75,7 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
                         },
                         Err(_) => {
                             ncurses::clear();
-                            ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
+                            ncurses::wprintw(screen.0, &format!("[Space] to pause/resume, [S] to skip, [E] to exit.\n"));
                             ncurses::wprintw(screen.0, &format!("Current directory: {}\n", dir_name.clone()));
                             ncurses::wprintw(screen.0, &format!("No audio files could be found or decoded.\n"));
                             ncurses::wrefresh(screen.0);
@@ -85,7 +85,7 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
                 }
                 Err(_) => {
                     ncurses::clear();
-                    ncurses::wprintw(screen.0, &format!("Space to pause/play, S to skip, E to exit.\n"));
+                    ncurses::wprintw(screen.0, &format!("[Space] to pause/resume, [S] to skip, [E] to exit.\n"));
                     ncurses::wprintw(screen.0, &format!("Current directory: {}\n", dir_name.clone()));
                     ncurses::wprintw(screen.0, &format!("No audio files could be found or decoded.\n"));
                     ncurses::wrefresh(screen.0);
