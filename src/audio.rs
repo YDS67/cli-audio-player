@@ -79,7 +79,7 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
                             ncurses::wprintw(screen.0, &format!("Current directory: {}\n", dir_name.clone()));
                             ncurses::wprintw(screen.0, &format!("No audio files could be found or decoded.\n"));
                             ncurses::wrefresh(screen.0);
-                            std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
+                            //std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
                         }
                     }
                 }
@@ -89,7 +89,7 @@ pub fn playback(rx: &Receiver<(bool, bool)>) {
                     ncurses::wprintw(screen.0, &format!("Current directory: {}\n", dir_name.clone()));
                     ncurses::wprintw(screen.0, &format!("No audio files could be found or decoded.\n"));
                     ncurses::wrefresh(screen.0);
-                    std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
+                    //std::thread::sleep(std::time::Duration::from_secs_f64(crate::FT_DESIRED));
                 }
             }
         }
